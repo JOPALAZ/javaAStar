@@ -4,8 +4,126 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.LinkedList;
 
 public class Window {
+    private static void openFile(DrawingPanel panel)
+    {
+        JFileChooser fileChooser = new JFileChooser();
+        int result = fileChooser.showOpenDialog(null);
+        Integer dimX = null;
+        Integer dimY = 0;
+        Integer i=0;
+        Integer j=0;
+        String line;
+        String[] map;
+        LinkedList<String[]> lines = new LinkedList<String[]>();
+        File file;
+        if (result == JFileChooser.APPROVE_OPTION) 
+        {
+            panel.clearBoard();
+            file = fileChooser.getSelectedFile();
+            try (BufferedReader br = new BufferedReader(new FileReader(file))) 
+            {
+                while ((line = br.readLine()) != null) 
+                {
+                    dimY++;
+                    map = line.split(" ");
+                    if (dimX == null)
+                    {
+                        dimX = map.length;
+                    }
+                    else if(dimX != map.length)
+                    {
+                        break;
+                    }
+                    lines.add(map);
+                }
+                FieldStates[][] grid = new FieldStates[dimX][dimY];
+                for(String[] ln : lines)
+                {
+                    for(String word : ln)
+                    {
+                        switch(word)
+                        {
+                            case "WALL":
+                                grid[i][j] = FieldStates.Wall;
+                                break;
+                            case "START":
+                                grid[i][j] = FieldStates.Start;
+                                panel.setStart();
+                                break;
+                            case "FINISH":
+                                grid[i][j] = FieldStates.Finish;
+                                panel.setFinish();
+                                break;
+                            default:
+                                grid[i][j] = FieldStates.Empty;
+                        }
+                        i++;
+
+                    }
+                    i=0;
+                    j++;
+                }
+                panel.setGrid(grid);
+                panel.setXY(dimX, dimY);
+            }
+            catch (IOException e) 
+            {
+                System.err.println("Can't read file " + e.getMessage());
+            }
+            catch (Exception e)
+            {
+                System.err.println("File is bad.");
+            }
+        }
+
+    }
+private static void saveFile(DrawingPanel panel) {
+    JFileChooser fileChooser = new JFileChooser();
+    int result = fileChooser.showSaveDialog(null);
+    FieldStates[][] grid;
+    if (result == JFileChooser.APPROVE_OPTION) {
+        File file = fileChooser.getSelectedFile();
+        grid = panel.getGrid();
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+            int dimX = grid.length;
+            int dimY = grid[0].length;
+
+            for (int j = 0; j < dimY; j++) {
+                StringBuilder lineBuilder = new StringBuilder();
+                for (int i = 0; i < dimX; i++) {
+                    switch (grid[i][j]) {
+                        case Wall:
+                            lineBuilder.append("WALL ");
+                            break;
+                        case Start:
+                            lineBuilder.append("START ");
+                            break;
+                        case Finish:
+                            lineBuilder.append("FINISH ");
+                            break;
+                        default:
+                            lineBuilder.append("EMPTY ");
+                            break;
+                    }
+                }
+                writer.write(lineBuilder.toString().trim());
+                writer.newLine();
+            }
+            System.out.println("File saved successfully.");
+        } catch (IOException e) {
+            System.err.println("Error saving file: " + e.getMessage());
+        }
+    }
+}
     public static void main(String args[]) {
         JFrame frame = new JFrame("Drawing Frame");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -18,10 +136,32 @@ public class Window {
         mb.add(m2);
         JMenuItem m11 = new JMenuItem("Open");
         JMenuItem m22 = new JMenuItem("Save as");
+        JMenuItem m33 = new JMenuItem("About");
+        DrawingPanel panel = new DrawingPanel();
+        m11.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                openFile(panel);
+            }
+        });
+        m22.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                saveFile(panel);
+            }
+        });
+        m33.addActionListener(new ActionListener() 
+        {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JOptionPane.showMessageDialog(m33, "Created by Bohdan Borets\nProvided as is\nNo warranty\nContact Information: boretboh@cvut.cz");
+            }
+        });
+
         m1.add(m11);
         m1.add(m22);
+        m2.add(m33);
 
-        DrawingPanel panel = new DrawingPanel();
         panel.setLayout(new BorderLayout());
         JPanel upperPanel = new JPanel();
         JPanel lowerPanel = new JPanel();
@@ -47,11 +187,11 @@ public class Window {
         {
             @Override
             public void actionPerformed(ActionEvent e) {
-                panel.repaint(); // Перерисовываем панель каждую секунду
+                panel.repaint(); 
             }
         });
         
-        timer.start(); // Запускаем таймер
+        timer.start(); 
     }
 }
 
@@ -289,14 +429,36 @@ class DrawingPanel extends JPanel {
             calculator.forceStop();
             calculator.interrupt();
             calculator = null;
+            started=false;
         }
         enable();
         startSet=false;
         finishSet=false;
         x = getWidth() / squareSize;
         y = getHeight() / squareSize;
-
         grid = new FieldStates[x][y];
+        cleanGrid();
         repaint();
+    }
+    public void setGrid(FieldStates[][] grid)
+    {
+        this.grid = grid;
+    }
+    public void setXY(int x, int y)
+    {
+        this.x = x;
+        this.y = y;
+    }
+    public void setStart()
+    {
+        startSet = true;
+    }
+    public void setFinish()
+    {
+        finishSet = true;
+    }
+    public FieldStates[][] getGrid()
+    {
+        return grid;
     }
 }

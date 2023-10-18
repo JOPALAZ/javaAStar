@@ -1,10 +1,10 @@
-public enum FieldStates 
+public enum FieldStates
 {
-    Finish,
-    Start,
-    Wall,
-    Empty,
-    Discovered,
-    Known,
-    Solution;
+  Finish,
+  Start,
+  Wall,
+  Empty,
+  Discovered,
+  Known,
+  Solution;
 }

@@ -1,5 +1,4 @@
-public enum FieldStates
-{
+public enum FieldStates {
   Finish,
   Start,
   Wall,

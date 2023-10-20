@@ -1,93 +1,109 @@
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
-class smartQueue
-{
+class smartQueue {
 
   List<Node> queue;
-  public smartQueue () { this.queue = new LinkedList<> (); }
-  public void
-  sort ()
-  {
+  public smartQueue() { this.queue = new LinkedList<>(); }
+  private void sort() {
+    quickSort(queue, 0, queue.size() - 1);
+    // sort_bubble();
+  }
+  private void quickSort(List<Node> arr, int begin, int end) {
+    if (begin < end) {
+      int partitionIndex = partition(arr, begin, end);
+
+      quickSort(arr, begin, partitionIndex - 1);
+      quickSort(arr, partitionIndex + 1, end);
+    }
+  }
+  private int partition(List<Node> arr, int begin, int end) {
+    Node pivot = arr.get(end);
+    int i = (begin - 1);
+
+    for (int j = begin; j < end; j++) {
+      if (arr.get(j).getFCost() > pivot.getFCost()) {
+        i++;
+
+        Node swapTemp = arr.get(i);
+        arr.set(i, arr.get(j));
+        arr.set(j, swapTemp);
+      } else if (arr.get(j).getFCost() == pivot.getFCost() &&
+                 arr.get(j).getGCost() < pivot.getGCost()) {
+        i++;
+
+        Node swapTemp = arr.get(i);
+        arr.set(i, arr.get(j));
+        arr.set(j, swapTemp);
+      }
+    }
+
+    Node swapTemp = arr.get(i + 1);
+    arr.set(i + 1, arr.get(end));
+    arr.set(end, swapTemp);
+
+    return i + 1;
+  }
+
+  public void sort_bubble() {
     Node buffer;
     boolean happended;
-    do
-      {
-        happended = false;
-        for (Integer i = 1; i < queue.size (); i++)
-          {
-            buffer = queue.get (i);
-            if (queue.get (i - 1).getFCost () < buffer.getFCost ()
-                || (queue.get (i - 1).getFCost () == buffer.getFCost ()
-                    && queue.get (i - 1).getHCost () < buffer.getHCost ()))
-              {
-                happended = true;
-                queue.set (i, queue.get (i - 1));
-                queue.set (i - 1, buffer);
-              }
-          }
+    do {
+      happended = false;
+      for (Integer i = 1; i < queue.size(); i++) {
+        buffer = queue.get(i);
+        if (queue.get(i - 1).getFCost() < buffer.getFCost() ||
+            (queue.get(i - 1).getFCost() == buffer.getFCost() &&
+             queue.get(i - 1).getHCost() < buffer.getHCost())) {
+          happended = true;
+          queue.set(i, queue.get(i - 1));
+          queue.set(i - 1, buffer);
+        }
       }
-    while (happended);
+    } while (happended);
   }
-  public boolean
-  addElemet (Node candidate)
-  {
-    Coordinate coordinate = candidate.getPos ();
+  public boolean addElemet(Node candidate) {
+    Coordinate coordinate = candidate.getPos();
     boolean trigered = false;
-    for (Node resident : queue)
-      {
-        if (resident.getPos () == coordinate)
-          {
-            trigered = true;
-            if (resident.getFCost () == candidate.getFCost ()
-                    && resident.getHCost () > candidate.getHCost ()
-                || resident.getFCost () > candidate.getFCost ())
-              {
-                queue.remove (resident);
-                queue.add (candidate);
-                sort ();
-                return true;
-              }
-          }
+    for (Node resident : queue) {
+      if (resident.getPos() == coordinate) {
+        trigered = true;
+        if (resident.getFCost() == candidate.getFCost() &&
+                resident.getHCost() > candidate.getHCost() ||
+            resident.getFCost() > candidate.getFCost()) {
+          queue.remove(resident);
+          queue.add(candidate);
+          sort();
+          return true;
+        }
       }
-    if (!trigered)
-      {
-        queue.add (candidate);
-        sort ();
-        return true;
-      }
+    }
+    if (!trigered) {
+      queue.add(candidate);
+      sort();
+      return true;
+    }
     return false;
   }
-  public Node
-  pollLowest ()
-  {
-    Node last = queue.get (queue.size () - 1);
-    queue.remove (queue.size () - 1);
+  public Node pollLowest() {
+    Node last = queue.get(queue.size() - 1);
+    queue.remove(queue.size() - 1);
     return last;
   }
-  public Node
-  peekLowest ()
-  {
-    return queue.get (queue.size () - 1);
-  }
-  public Integer
-  size ()
-  {
-    return queue.size ();
-  }
+  public Node peekLowest() { return queue.get(queue.size() - 1); }
+  public Integer size() { return queue.size(); }
 }
-class Node
-{
+class Node {
   private Coordinate father;
   private Integer GCost;
   private Integer HCost;
   private Integer FCost;
   private FieldStates state;
   private Coordinate pos;
-  public Node (Coordinate father, Integer cost, FieldStates state,
-               Coordinate pos)
-  {
+  public Node(Coordinate father, Integer cost, FieldStates state,
+              Coordinate pos) {
     this.father = father;
     this.GCost = cost;
     this.HCost = cost;
@@ -95,57 +111,22 @@ class Node
     this.state = state;
     this.pos = pos;
   }
-  public void
-  ChangeState (FieldStates state)
-  {
-    this.state = state;
-  }
-  public void
-  ChangeFather (Coordinate father)
-  {
-    this.father = father;
-  }
-  public void
-  ChangeCosts (Integer G, Integer H)
-  {
+  public void ChangeState(FieldStates state) { this.state = state; }
+  public void ChangeFather(Coordinate father) { this.father = father; }
+  public void ChangeCosts(Integer G, Integer H) {
     this.GCost = G;
     this.HCost = H;
     this.FCost = this.GCost + this.HCost;
   }
-  public FieldStates
-  getState ()
-  {
-    return this.state;
-  }
-  public Integer
-  getFCost ()
-  {
-    return FCost;
-  }
-  public Integer
-  getGCost ()
-  {
-    return GCost;
-  }
-  public Integer
-  getHCost ()
-  {
-    return HCost;
-  }
-  public Coordinate
-  getPos ()
-  {
-    return pos;
-  }
-  public Coordinate
-  getFather ()
-  {
-    return father;
-  }
+  public FieldStates getState() { return this.state; }
+  public Integer getFCost() { return FCost; }
+  public Integer getGCost() { return GCost; }
+  public Integer getHCost() { return HCost; }
+  public Coordinate getPos() { return pos; }
+  public Coordinate getFather() { return father; }
 }
 
-public class AStar
-{
+public class AStar {
   private Node field[][];
   private int actionCost = 10;
   private smartQueue candidates;
@@ -153,220 +134,163 @@ public class AStar
   private HashSet<Coordinate> searched;
   private int sizeX, sizeY;
   private boolean going = true;
-  public AStar (FieldStates[][] field) throws Exception
-  {
+  public AStar(FieldStates[][] field) throws Exception {
     int i, j;
-    if (field == null || field.length == 0)
-      {
-        throw new Exception ("Field was bad");
-      }
+    if (field == null || field.length == 0) {
+      throw new Exception("Field was bad");
+    }
     sizeX = field.length;
     sizeY = field[0].length;
     this.field = new Node[sizeX][sizeY];
-    for (i = 0; i < sizeX; ++i)
-      {
-        for (j = 0; j < sizeY; ++j)
-          {
-            this.field[i][j]
-                = new Node (null, 0, field[i][j], new Coordinate (i, j));
-            if (field[i][j] == FieldStates.Start)
-              {
-                start = this.field[i][j].getPos ();
-              }
-            else if (field[i][j] == FieldStates.Finish)
-              {
-                finish = this.field[i][j].getPos ();
-              }
-          }
+    for (i = 0; i < sizeX; ++i) {
+      for (j = 0; j < sizeY; ++j) {
+        this.field[i][j] = new Node(null, 0, field[i][j], new Coordinate(i, j));
+        if (field[i][j] == FieldStates.Start) {
+          start = this.field[i][j].getPos();
+        } else if (field[i][j] == FieldStates.Finish) {
+          finish = this.field[i][j].getPos();
+        }
       }
-    searched = new HashSet<Coordinate> ();
-    if (start == null || finish == null)
-      {
-        throw new Exception ("No start or finish");
-      }
-    this.field[start.x][start.y].ChangeState (FieldStates.Start);
-    this.field[finish.x][finish.y].ChangeState (FieldStates.Finish);
-    this.candidates = new smartQueue ();
+    }
+    searched = new HashSet<Coordinate>();
+    if (start == null || finish == null) {
+      throw new Exception("No start or finish");
+    }
+    this.field[start.x][start.y].ChangeState(FieldStates.Start);
+    this.field[finish.x][finish.y].ChangeState(FieldStates.Finish);
+    this.candidates = new smartQueue();
   }
 
-  public FieldStates[][] getField ()
-  {
+  public FieldStates[][] getField() {
     FieldStates[][] exhaust = new FieldStates[sizeX][sizeY];
-    for (int i = 0; i < sizeX; i++)
-      {
-        for (int j = 0; j < sizeY; j++)
-          {
-            exhaust[i][j] = this.field[i][j].getState ();
-          }
+    for (int i = 0; i < sizeX; i++) {
+      for (int j = 0; j < sizeY; j++) {
+        exhaust[i][j] = this.field[i][j].getState();
       }
+    }
     return exhaust;
   }
-  private Coordinate
-  makeAnOperation ()
-  {
-    if (candidates.size () == 0)
-      {
-        return null;
-      }
-    Node candidate = candidates.pollLowest ();
-    field[candidate.getPos ().x][candidate.getPos ().y].ChangeCosts (
-        candidate.getGCost (), candidate.getHCost ());
-    field[candidate.getPos ().x][candidate.getPos ().y].ChangeCosts (
-        candidate.getGCost (), candidate.getHCost ());
-    field[candidate.getPos ().x][candidate.getPos ().y].ChangeFather (
-        candidate.getFather ());
-    if (field[candidate.getPos ().x][candidate.getPos ().y].getState ()
-        != FieldStates.Finish)
-      {
-        field[candidate.getPos ().x][candidate.getPos ().y].ChangeState (
-            FieldStates.Discovered);
-      }
-    searched.add (candidate.getPos ());
-    return candidate.getPos ();
+  private Coordinate makeAnOperation() {
+    if (candidates.size() == 0) {
+      return null;
+    }
+    Node candidate = candidates.pollLowest();
+    field[candidate.getPos().x][candidate.getPos().y].ChangeCosts(
+        candidate.getGCost(), candidate.getHCost());
+    field[candidate.getPos().x][candidate.getPos().y].ChangeCosts(
+        candidate.getGCost(), candidate.getHCost());
+    field[candidate.getPos().x][candidate.getPos().y].ChangeFather(
+        candidate.getFather());
+    if (field[candidate.getPos().x][candidate.getPos().y].getState() !=
+        FieldStates.Finish) {
+      field[candidate.getPos().x][candidate.getPos().y].ChangeState(
+          FieldStates.Discovered);
+    }
+    searched.add(candidate.getPos());
+    return candidate.getPos();
   }
 
-  private Integer
-  calculateHypothetical (Coordinate point)
-  {
-    return (Math.abs (finish.x - point.x) + Math.abs (finish.y - point.y))
-        * actionCost;
+  private Integer calculateHypothetical(Coordinate point) {
+    return (Math.abs(finish.x - point.x) + Math.abs(finish.y - point.y)) *
+        actionCost;
   }
-  static public void
-  test ()
-  {
-    smartQueue queue = new smartQueue ();
-    for (int i = 0; i < 100; ++i)
-      {
-        queue.addElemet (
-            new Node (null, i, FieldStates.Empty, new Coordinate (i, i)));
-      }
-    for (int i = 0; i < 100; ++i)
-      {
-        System.out.println (queue.peekLowest ().getFCost () + " "
-                            + queue.pollLowest ().getHCost ());
-      }
+  static public void test() {
+    smartQueue queue = new smartQueue();
+    for (int i = 0; i < 100; ++i) {
+      queue.addElemet(
+          new Node(null, i, FieldStates.Empty, new Coordinate(i, i)));
+    }
+    for (int i = 0; i < 100; ++i) {
+      System.out.println(queue.peekLowest().getFCost() + " " +
+                         queue.pollLowest().getHCost());
+    }
   }
-  private List<Coordinate>
-  getPath (Coordinate end)
-  {
-    List<Coordinate> path = new LinkedList<Coordinate> ();
+  private List<Coordinate> getPath(Coordinate end) {
+    List<Coordinate> path = new LinkedList<Coordinate>();
     Coordinate pos = end;
-    while (pos != start)
-      {
-        path.add (pos);
-        pos = field[pos.x][pos.y].getFather ();
-        if (pos != start)
-          {
-            field[pos.x][pos.y].ChangeState (FieldStates.Solution);
-          }
+    while (pos != start) {
+      path.add(pos);
+      pos = field[pos.x][pos.y].getFather();
+      if (pos != start) {
+        field[pos.x][pos.y].ChangeState(FieldStates.Solution);
       }
-    path.add (start);
+    }
+    path.add(start);
     return path;
   }
-  public void
-  forceStop ()
-  {
-    going = false;
-  }
+  public void forceStop() { going = false; }
 
-  public int
-  solve () throws Exception
-  {
+  public int solve() throws Exception {
     Coordinate buffer;
-    startSolving (null);
-    while (going)
-      {
-        buffer = makeAnOperation ();
-        if (buffer == null)
-          {
-            throw new Exception ("No solution");
-          }
-        else if (buffer.x == finish.x && buffer.y == finish.y)
-          {
-            getPath (buffer);
-            return 1;
-          }
-
-        getPossibilities (buffer);
-      }
-    return 0;
-  }
-
-  public void
-  startSolving (Integer delay) throws Exception
-  {
-
-    field[start.x][start.y].ChangeCosts (0, calculateHypothetical (start));
-    searched.add (field[start.x][start.y].getPos ());
-    getPossibilities (start);
-  }
-
-  public int
-  allowMove () throws Exception
-  {
-    Coordinate buffer;
-    buffer = makeAnOperation ();
-    // debug();
-    // System.in.read();
-    if (buffer == null)
-      {
-        throw new Exception ("No solution");
-      }
-    else if (buffer.x == finish.x && buffer.y == finish.y)
-      {
-        getPath (finish);
+    startSolving(null);
+    while (going) {
+      buffer = makeAnOperation();
+      if (buffer == null) {
+        throw new Exception("No solution");
+      } else if (buffer.x == finish.x && buffer.y == finish.y) {
+        getPath(buffer);
         return 1;
       }
 
-    getPossibilities (buffer);
+      getPossibilities(buffer);
+    }
     return 0;
   }
 
-  private void
-  getPossibilities (Coordinate pos)
-  {
+  public void startSolving(Integer delay) throws Exception {
+
+    field[start.x][start.y].ChangeCosts(0, calculateHypothetical(start));
+    searched.add(field[start.x][start.y].getPos());
+    getPossibilities(start);
+  }
+
+  public int allowMove() throws Exception {
+    Coordinate buffer;
+    buffer = makeAnOperation();
+    // debug();
+    // System.in.read();
+    if (buffer == null) {
+      throw new Exception("No solution");
+    } else if (buffer.x == finish.x && buffer.y == finish.y) {
+      getPath(finish);
+      return 1;
+    }
+
+    getPossibilities(buffer);
+    return 0;
+  }
+
+  private void getPossibilities(Coordinate pos) {
     int i, j, GCost, HCost;
     Coordinate candidate;
     Node candidateNode;
-    for (i = (pos.x - 1); i < pos.x + 2; ++i)
-      {
-        for (j = (pos.y - 1); j < pos.y + 2; ++j)
-          {
-            if (i >= 0 && i < sizeX && j >= 0 && j < sizeY
-                && field[i][j].getState () != FieldStates.Wall)
-              {
-                if (i != pos.x || j != pos.y)
-                  {
-                    candidate = field[i][j].getPos ();
-                    GCost = (int)(Math.sqrt (Math.abs (i - pos.x)
-                                             + Math.abs (j - pos.y))
-                                  * actionCost)
-                            + field[pos.x][pos.y].getGCost ();
-                    HCost = calculateHypothetical (candidate);
-                    if (!searched.contains (candidate))
-                      {
-                        candidateNode = new Node (
-                            pos, GCost + HCost, FieldStates.Known, candidate);
-                        candidateNode.ChangeCosts (GCost, HCost);
-                        if (field[i][j].getState () != FieldStates.Finish)
-                          {
-                            field[i][j].ChangeState (FieldStates.Known);
-                          }
-                        candidates.addElemet (candidateNode);
-                      }
-                    else
-                      {
-                        if (field[candidate.x][candidate.y].getGCost ()
-                            >= GCost)
-                          {
-                            field[candidate.x][candidate.y].ChangeCosts (
-                                GCost, HCost);
-                            field[candidate.x][candidate.y].ChangeFather (pos);
-                          }
-                      }
-                  }
+    for (i = (pos.x - 1); i < pos.x + 2; ++i) {
+      for (j = (pos.y - 1); j < pos.y + 2; ++j) {
+        if (i >= 0 && i < sizeX && j >= 0 && j < sizeY &&
+            field[i][j].getState() != FieldStates.Wall) {
+          if (i != pos.x || j != pos.y) {
+            candidate = field[i][j].getPos();
+            GCost = (int)(Math.sqrt(Math.abs(i - pos.x) + Math.abs(j - pos.y)) *
+                          actionCost) +
+                    field[pos.x][pos.y].getGCost();
+            HCost = calculateHypothetical(candidate);
+            if (!searched.contains(candidate)) {
+              candidateNode =
+                  new Node(pos, GCost + HCost, FieldStates.Known, candidate);
+              candidateNode.ChangeCosts(GCost, HCost);
+              if (field[i][j].getState() != FieldStates.Finish) {
+                field[i][j].ChangeState(FieldStates.Known);
               }
+              candidates.addElemet(candidateNode);
+            } else {
+              if (field[candidate.x][candidate.y].getGCost() >= GCost) {
+                field[candidate.x][candidate.y].ChangeCosts(GCost, HCost);
+                field[candidate.x][candidate.y].ChangeFather(pos);
+              }
+            }
           }
+        }
       }
+    }
   }
 }

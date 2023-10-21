@@ -11,12 +11,14 @@ public class AThread extends Thread {
   public void solve() {
     try {
       aStar.solve();
+      solved = true;
       return;
     } catch (Exception e) {
       System.err.println(e.getMessage());
       return;
     }
   }
+  public boolean end() { return aStar.end(); }
   public CompletableFuture<Void> solveAsync() {
     CompletableFuture<Void> future = CompletableFuture.runAsync(() -> solve());
     return future.exceptionally(e -> {

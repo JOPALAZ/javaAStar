@@ -166,7 +166,7 @@ public class Window {
     frame.getContentPane().add(BorderLayout.CENTER, panel);
 
     frame.setVisible(true);
-    Timer timer = new Timer(100, new ActionListener() {
+    Timer timer = new Timer(10, new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
         panel.repaint();
@@ -216,7 +216,15 @@ class DrawingPanel extends JPanel {
   @Override
   protected void paintComponent(Graphics g) {
     super.paintComponent(g);
-    // debug();
+    if (calculator != null && calculator.end()) {
+      if (started) {
+        grid = calculator.getField();
+        started = false;
+        calculator.forceStop();
+        calculator = null;
+      }
+      enable();
+    }
     if (calculator != null)
       grid = calculator.getField();
     for (int i = 0; i < x; i++) {
@@ -243,12 +251,6 @@ class DrawingPanel extends JPanel {
         } else if (grid[i][j] == FieldStates.Solution) {
           g.setColor(Color.decode("#09ff00"));
           g.fillRect(i * squareSize, j * squareSize, squareSize, squareSize);
-          if (started && calculator != null) {
-            started = false;
-            calculator.forceStop();
-            calculator = null;
-          }
-          enable();
           drawoutline(i, j, g);
         } else {
           drawoutline(i, j, g);

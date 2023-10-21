@@ -1,4 +1,3 @@
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -7,63 +6,6 @@ class smartQueue {
 
   List<Node> queue;
   public smartQueue() { this.queue = new LinkedList<>(); }
-  private void sort() {
-    quickSort(queue, 0, queue.size() - 1);
-    // sort_bubble();
-  }
-  private void quickSort(List<Node> arr, int begin, int end) {
-    if (begin < end) {
-      int partitionIndex = partition(arr, begin, end);
-
-      quickSort(arr, begin, partitionIndex - 1);
-      quickSort(arr, partitionIndex + 1, end);
-    }
-  }
-  private int partition(List<Node> arr, int begin, int end) {
-    Node pivot = arr.get(end);
-    int i = (begin - 1);
-
-    for (int j = begin; j < end; j++) {
-      if (arr.get(j).getFCost() > pivot.getFCost()) {
-        i++;
-
-        Node swapTemp = arr.get(i);
-        arr.set(i, arr.get(j));
-        arr.set(j, swapTemp);
-      } else if (arr.get(j).getFCost() == pivot.getFCost() &&
-                 arr.get(j).getGCost() < pivot.getGCost()) {
-        i++;
-
-        Node swapTemp = arr.get(i);
-        arr.set(i, arr.get(j));
-        arr.set(j, swapTemp);
-      }
-    }
-
-    Node swapTemp = arr.get(i + 1);
-    arr.set(i + 1, arr.get(end));
-    arr.set(end, swapTemp);
-
-    return i + 1;
-  }
-
-  public void sort_bubble() {
-    Node buffer;
-    boolean happended;
-    do {
-      happended = false;
-      for (Integer i = 1; i < queue.size(); i++) {
-        buffer = queue.get(i);
-        if (queue.get(i - 1).getFCost() < buffer.getFCost() ||
-            (queue.get(i - 1).getFCost() == buffer.getFCost() &&
-             queue.get(i - 1).getHCost() < buffer.getHCost())) {
-          happended = true;
-          queue.set(i, queue.get(i - 1));
-          queue.set(i - 1, buffer);
-        }
-      }
-    } while (happended);
-  }
   public boolean addElemet(Node candidate) {
     Coordinate coordinate = candidate.getPos();
     boolean trigered = false;
@@ -75,24 +17,47 @@ class smartQueue {
             resident.getFCost() > candidate.getFCost()) {
           queue.remove(resident);
           queue.add(candidate);
-          sort();
           return true;
         }
       }
     }
     if (!trigered) {
       queue.add(candidate);
-      sort();
       return true;
     }
     return false;
   }
   public Node pollLowest() {
-    Node last = queue.get(queue.size() - 1);
-    queue.remove(queue.size() - 1);
-    return last;
+    if (queue.size() == 0) {
+      return null;
+    }
+    Node lowest = queue.get(queue.size() - 1);
+    for (Node resident : queue) {
+      if (lowest.getFCost() > resident.getFCost() ||
+          (resident.getFCost() == lowest.getFCost() &&
+           lowest.getHCost() > resident.getHCost())) {
+        lowest = resident;
+      }
+    }
+    queue.remove(lowest);
+    return lowest;
   }
-  public Node peekLowest() { return queue.get(queue.size() - 1); }
+
+  public Node peekLowest() {
+    if (queue.size() == 0) {
+      return null;
+    }
+    Node lowest = queue.get(queue.size() - 1);
+    for (Node resident : queue) {
+      if (lowest.getFCost() > resident.getFCost() ||
+          (resident.getFCost() == lowest.getFCost() &&
+           lowest.getHCost() > resident.getHCost())) {
+        lowest = resident;
+      }
+    }
+    queue.remove(lowest);
+    return lowest;
+  }
   public Integer size() { return queue.size(); }
 }
 class Node {
@@ -134,6 +99,7 @@ public class AStar {
   private HashSet<Coordinate> searched;
   private int sizeX, sizeY;
   private boolean going = true;
+  private boolean end = false;
   public AStar(FieldStates[][] field) throws Exception {
     int i, j;
     if (field == null || field.length == 0) {
@@ -226,9 +192,11 @@ public class AStar {
     while (going) {
       buffer = makeAnOperation();
       if (buffer == null) {
+        end = true;
         throw new Exception("No solution");
       } else if (buffer.x == finish.x && buffer.y == finish.y) {
         getPath(buffer);
+        end = true;
         return 1;
       }
 
@@ -236,7 +204,7 @@ public class AStar {
     }
     return 0;
   }
-
+  public boolean end() { return end; }
   public void startSolving(Integer delay) throws Exception {
 
     field[start.x][start.y].ChangeCosts(0, calculateHypothetical(start));

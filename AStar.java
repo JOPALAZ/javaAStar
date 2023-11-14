@@ -39,6 +39,7 @@ class smartQueue {
         lowest = resident;
       }
     }
+    //System.out.printf("F = %d H = %d \n", lowest.getFCost(), lowest.getHCost());
     queue.remove(lowest);
     return lowest;
   }

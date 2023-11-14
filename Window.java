@@ -230,26 +230,26 @@ class DrawingPanel extends JPanel {
     for (int i = 0; i < x; i++) {
       for (int j = 0; j < y; j++) {
         if (grid[i][j] == FieldStates.Wall) {
-          g.setColor(Color.BLACK);
+          g.setColor(Color.decode(Colors.Wall.getCode()));
           g.fillRect(i * squareSize, j * squareSize, squareSize, squareSize);
         } else if (grid[i][j] == FieldStates.Finish) {
-          g.setColor(Color.decode("#ba5c28"));
+          g.setColor(Color.decode(Colors.Finish.getCode()));
           g.fillRect(i * squareSize, j * squareSize, squareSize, squareSize);
           drawoutline(i, j, g);
         } else if (grid[i][j] == FieldStates.Start) {
-          g.setColor(Color.decode("#2886ba"));
+          g.setColor(Color.decode(Colors.Start.getCode()));
           g.fillRect(i * squareSize, j * squareSize, squareSize, squareSize);
           drawoutline(i, j, g);
         } else if (grid[i][j] == FieldStates.Known) {
-          g.setColor(Color.decode("#fff900"));
+          g.setColor(Color.decode(Colors.Known.getCode()));
           g.fillRect(i * squareSize, j * squareSize, squareSize, squareSize);
           drawoutline(i, j, g);
         } else if (grid[i][j] == FieldStates.Discovered) {
-          g.setColor(Color.decode("#0006ff"));
+          g.setColor(Color.decode(Colors.Discovered.getCode()));
           g.fillRect(i * squareSize, j * squareSize, squareSize, squareSize);
           drawoutline(i, j, g);
         } else if (grid[i][j] == FieldStates.Solution) {
-          g.setColor(Color.decode("#09ff00"));
+          g.setColor(Color.decode(Colors.Solution.getCode()));
           g.fillRect(i * squareSize, j * squareSize, squareSize, squareSize);
           drawoutline(i, j, g);
         } else {
